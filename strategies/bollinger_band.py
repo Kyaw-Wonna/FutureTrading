@@ -1,10 +1,8 @@
 # strategies/bollinger_band.py
-import talib
 from .base_strategy import BaseStrategy
 
 class BollingerBandStrategy(BaseStrategy):
     def calculate_indicators(self, df):
-        """Calculate Bollinger Bands, RSI, and volume change."""
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0
         )
@@ -13,7 +11,6 @@ class BollingerBandStrategy(BaseStrategy):
         return df
 
     def generate_signal(self, df):
-        """Generate a trading signal based on Bollinger Bands."""
         latest = df.iloc[-1]
         conditions = {
             "bb_squeeze": (latest['upper_band'] - latest['lower_band']) / latest['close'] < 0.005,
