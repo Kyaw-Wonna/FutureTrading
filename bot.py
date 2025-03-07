@@ -1,40 +1,36 @@
 # bot.py
-from strategies.bollinger_band import BollingerBandStrategy
+import logging
+from telegram import Update
+from telegram.ext import Application, CommandHandler, CallbackContext
+from dotenv import load_dotenv
+import os
 
-# Strategy mapping
-STRATEGIES = {
-    "bollinger_band": BollingerBandStrategy
-}
+# Load environment variables
+load_dotenv()
+TOKEN = os.getenv("7711959119:AAGn6kCivsjuHsU8TdHZROe-wTfv_1HCf2I")
 
-async def handle_strategy_selection(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-    strategy_name = query.data
-    strategy_class = STRATEGIES.get(strategy_name)
+# Enable logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    if not strategy_class:
-        await query.edit_message_text("⚠️ Invalid strategy selected.")
-        return
+# Initialize bot
+application = Application.builder().token(TOKEN).build()
 
-    # Fetch data and generate signal
-    strategy = strategy_class()
-    df = strategy.fetch_data()
-    if df is None:
-        await query.edit_message_text("⚠️ Failed to fetch data. Please try again.")
-        return
+# Error handler
+async def error_handler(update: Update, context: CallbackContext):
+    logger.error(f"Update {update} caused error: {context.error}")
+    await update.message.reply_text("⚠️ An error occurred. Please try again.")
 
-    df = strategy.calculate_indicators(df)
-    signal = strategy.generate_signal(df)
+# Start command
+async def start(update: Update, context: CallbackContext):
+    await update.message.reply_text(
+        "🎯 Welcome! Use /strategy to select a trading strategy."
+    )
 
-    # Format response
-    latest = df.iloc[-1]
-    response = f"""
-    📊 *{strategy_name.upper()} Signal* ({signal})
-    ---------------------------------
-    🔹 Price: ${latest['close']:,.2f}
-    🔸 Upper Band: ${latest['upper_band']:,.2f}
-    🔹 Lower Band: ${latest['lower_band']:,.2f}
-    🔸 RSI: {latest['rsi']:.2f}
-    🔹 Volume Change: {latest['volume_pct_change']:.2f}%
-    """
-    await query.edit_message_text(response, parse_mode="Markdown")
+# Add handlers
+application.add_handler(CommandHandler("start", start))
+application.add_error_handler(error_handler)
+
+# Run bot
+if __name__ == "__main__":
+    application.run_polling()
