@@ -1,7 +1,5 @@
-# requirements.txt
 python-telegram-bot==20.3
 pandas==2.0.3
 numpy==1.24.3
 requests==2.31.0
-ta-lib-binary==0.4.24
 python-dotenv==1.0.0
