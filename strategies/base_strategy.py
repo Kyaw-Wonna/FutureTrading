@@ -1,9 +1,6 @@
 # strategies/base_strategy.py
 import pandas as pd
-import requests
-import logging
-
-logger = logging.getLogger(__name__)
+import talib
 
 class BaseStrategy:
     def __init__(self, symbol="BTCUSDT", interval="1h", limit=100):
@@ -21,7 +18,6 @@ class BaseStrategy:
         }
         try:
             response = requests.get(url, params=params)
-            response.raise_for_status()  # Raise error for bad status codes
             data = response.json()
             df = pd.DataFrame(data, columns=[
                 "timestamp", "open", "high", "low", "close", "volume",
@@ -30,7 +26,7 @@ class BaseStrategy:
             ])
             df["close"] = df["close"].astype(float)
             return df
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             logger.error(f"Failed to fetch data: {e}")
             return None
 
