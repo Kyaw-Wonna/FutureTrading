@@ -1,5 +1,5 @@
 python-telegram-bot==20.3
-pandas==2.0.3
-numpy==1.24.3
+pandas==2.2.0  # Updated version with Python 3.12 support
+numpy==1.26.0  # Updated version with Python 3.12 support
 requests==2.31.0
 python-dotenv==1.0.0
